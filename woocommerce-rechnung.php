@@ -1,9 +1,11 @@
 <?php
 /*
-Plugin-Name: WooCommerce Rechnung Zahlungsgateway
-Beschreibung: Fügt WooCommerce ein Zahlungsgateway für Rechnungen hinzu.
+Plugin Name: WooCommerce Rechnung Zahlungsgateway
+Plugin URI: http://example.com/plugin
+Description: Fügt WooCommerce ein Zahlungsgateway für Rechnungen hinzu.
 Version: 1.0
-Autor: Christian Denzau
+Author: Christian Denzau
+Author URI: http://example.com
 */
 
 // Sicherstellen, dass das Skript nicht direkt aufgerufen wird
@@ -143,16 +145,19 @@ function init_rechnung_gateway()
   }
 
   // Initialisiert die Einstellungen
+  // Initialisiert die Einstellungen
   add_action("admin_init", "rechnung_settings_init");
 
   function rechnung_settings_init()
   {
+    // Registriert eine neue Einstellung für die Benutzerverwaltung
     register_setting("rechnung_settings", "wc_rechnung_allowed_users", [
       "type" => "array",
       "sanitize_callback" => "sanitize_user_selection",
       "default" => [],
     ]);
 
+    // Fügt eine neue Sektion für die Rechnungsfreigabe-Einstellungen hinzu
     add_settings_section(
       "rechnung_settings_section",
       __("Aktiviere Rechnungszahlung für spezifische Nutzer", "woocommerce"),
@@ -160,35 +165,57 @@ function init_rechnung_gateway()
       "rechnung_settings"
     );
 
+    // Fügt ein neues Feld in der Sektion hinzu für die Nutzerauswahl
     add_settings_field(
       "rechnung_users",
       __("Erlaubte Nutzer", "woocommerce"),
-      "render_user_checkboxes",
+      "render_user_list",
       "rechnung_settings",
       "rechnung_settings_section"
     );
   }
 
-  // Rendert die Checkboxes für die Nutzer
-  function render_user_checkboxes()
+  // Funktion zum Rendern der Benutzerliste
+  function render_user_list()
   {
-    $users = get_users(["fields" => ["ID", "display_name"]]);
-    $allowed_users = get_option("wc_rechnung_allowed_users", []);
+    $users = get_users();
+    $approved_users = get_option("wc_rechnung_allowed_users", []);
+
+    echo '<style>
+            .auto-width-table th, .auto-width-table td {
+                padding: 8px;
+                text-align: left;
+            }
+            .checkbox-col {
+                width: 50px !important; /* Setzt die Breite der ersten Spalte */
+            }
+          </style>';
+
+    echo '<table class="wp-list-table widefat fixed striped auto-width-table">';
+    echo "<thead><tr><th class='checkbox-col'>Status</th><th>Benutzername</th><th>Vorname</th><th>Nachname</th><th>E-Mail</th><th>Account-Typ</th></tr></thead>";
+    echo "<tbody>";
 
     foreach ($users as $user) {
-      $checked = in_array($user->ID, $allowed_users) ? "checked" : "";
-      echo "<label>";
-      echo '<input type="checkbox" name="wc_rechnung_allowed_users[]" value="' .
+      $checked = in_array($user->ID, $approved_users) ? "checked" : "";
+      echo "<tr>";
+      echo '<td class="checkbox-col"><input type="checkbox" name="wc_rechnung_allowed_users[]" value="' .
         esc_attr($user->ID) .
         '" ' .
         $checked .
-        ">";
-      echo esc_html($user->display_name);
-      echo "</label><br>";
+        "></td>";
+      echo "<td>" . esc_html($user->user_login) . "</td>";
+      echo "<td>" . esc_html($user->first_name) . "</td>";
+      echo "<td>" . esc_html($user->last_name) . "</td>";
+      echo "<td>" . esc_html($user->user_email) . "</td>";
+      echo "<td>" . esc_html(implode(", ", $user->roles)) . "</td>";
+      echo "</tr>";
     }
+
+    echo "</tbody>";
+    echo "</table>";
   }
 
-  // Validiert die Benutzerauswahl
+  // Sanitizes the user selection input
   function sanitize_user_selection($input)
   {
     return is_array($input) ? array_map("absint", $input) : [];
