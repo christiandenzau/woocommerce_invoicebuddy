@@ -168,8 +168,8 @@ function init_rechnung_gateway()
     // Fügt ein neues Feld in der Sektion hinzu für die Nutzerauswahl
     add_settings_field(
       "rechnung_users",
-      __("Erlaubte Nutzer", "woocommerce"),
-      "render_user_list",
+      "", // Leeres Label für keine Anzeige
+      "render_user_list", // Callback-Funktion für das Rendern der Tabelle
       "rechnung_settings",
       "rechnung_settings_section"
     );
@@ -182,14 +182,19 @@ function init_rechnung_gateway()
     $approved_users = get_option("wc_rechnung_allowed_users", []);
 
     echo '<style>
-            .auto-width-table th, .auto-width-table td {
-                padding: 8px;
-                text-align: left;
-            }
-            .checkbox-col {
-                width: 50px !important; /* Setzt die Breite der ersten Spalte */
-            }
-          </style>';
+      .auto-width-table th, .auto-width-table td {
+          padding: 8px;
+          text-align: left;
+      }
+      
+      .form-table th {
+          width: auto;
+      }
+      
+      th.checkbox-col {
+          width: 50px !important;
+      }
+    </style>';
 
     echo '<table class="wp-list-table widefat fixed striped auto-width-table">';
     echo "<thead><tr><th class='checkbox-col'>Status</th><th>Benutzername</th><th>Vorname</th><th>Nachname</th><th>E-Mail</th><th>Account-Typ</th></tr></thead>";
