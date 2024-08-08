@@ -124,22 +124,25 @@ function init_rechnung_gateway()
     // Zugriff auf die gespeicherten berechtigten Benutzer
     $allowed_users = get_option("wc_rechnung_approved_admins", []); // Ensure this matches the saved option key
 
-    // Debug: Ausgabe der erlaubten Benutzer-IDs
-    error_log("Erlaubte Benutzer-IDs: " . implode(", ", $allowed_users));
+    // Check if the array is not empty and contains users
+    if (!empty($allowed_users)) {
+      // Erhalte die ID des aktuellen Benutzers
+      $current_user_id = get_current_user_id();
 
-    // Erhalte die ID des aktuellen Benutzers
-    $current_user_id = get_current_user_id();
-
-    // Überprüfe, ob der aktuelle Benutzer berechtigt ist, das Menü zu sehen
-    if (in_array($current_user_id, $allowed_users)) {
-      add_menu_page(
-        "Rechnungs&shy;freigabe", // Seitentitel
-        "Rechnungs&shy;freigabe", // Menüpunkt-Titel
-        "manage_options", // Berechtigung
-        "rechnung_settings", // Menü-Slug
-        "render_rechnung_settings_page", // Callback-Funktion
-        "dashicons-media-document" // Icon-URL oder Dashicons-Klasse
-      );
+      // Überprüfe, ob der aktuelle Benutzer berechtigt ist, das Menü zu sehen
+      if (in_array($current_user_id, $allowed_users)) {
+        add_menu_page(
+          "Rechnungs&shy;freigabe", // Seitentitel
+          "Rechnungs&shy;freigabe", // Menüpunkt-Titel
+          "manage_options", // Berechtigung
+          "rechnung_settings", // Menü-Slug
+          "render_rechnung_settings_page", // Callback-Funktion
+          "dashicons-media-document" // Icon-URL oder Dashicons-Klasse
+        );
+      }
+    } else {
+      // Optional: Log a message or handle cases where no users are approved
+      error_log("Keine erlaubten Benutzer gefunden.");
     }
   }
 

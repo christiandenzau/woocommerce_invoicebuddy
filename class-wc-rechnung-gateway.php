@@ -62,7 +62,7 @@ class WC_Rechnung_Gateway extends WC_Payment_Gateway
       ],
       "description" => [
         "title" => __("Beschreibung", "woocommerce"),
-        "type" => "textarea",
+        "type" => "text",
         "description" => __(
           "Steuert die Beschreibung, die der Benutzer während des Checkouts sieht.",
           "woocommerce"
