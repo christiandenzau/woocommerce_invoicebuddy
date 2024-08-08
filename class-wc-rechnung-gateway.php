@@ -33,6 +33,16 @@ class WC_Rechnung_Gateway extends WC_Payment_Gateway
 
   public function init_form_fields()
   {
+    $users = get_users([
+      "role__not_in" => ["customer"], // Ausschluss der Kundenrollen
+    ]);
+
+    $user_options = [];
+    foreach ($users as $user) {
+      $user_options[$user->ID] =
+        $user->display_name . " (" . implode(", ", $user->roles) . ")";
+    }
+
     $this->form_fields = [
       "enabled" => [
         "title" => __("Aktivieren/Deaktivieren", "woocommerce"),
@@ -59,7 +69,34 @@ class WC_Rechnung_Gateway extends WC_Payment_Gateway
         ),
         "default" => __("Bezahlen Sie bequem per Rechnung.", "woocommerce"),
       ],
+      "approved_users" => [
+        "title" => __("Zugriffsberechtigte Benutzer", "woocommerce"),
+        "type" => "multiselect",
+        "description" => __(
+          "Wählen Sie die Benutzer aus, die Zugriff auf das Rechnungsfreigabe-Menü haben sollen.",
+          "woocommerce"
+        ),
+        "options" => $user_options,
+        "class" => "wc-enhanced-select",
+        "css" => "width: 400px;",
+        "custom_attributes" => [
+          "data-placeholder" => __("Wählen Sie Benutzer...", "woocommerce"),
+        ],
+        "default" => get_option("wc_rechnung_approved_admins", []),
+      ],
     ];
+  }
+
+  // Und in deiner `process_admin_options` Methode:
+  public function process_admin_options()
+  {
+    parent::process_admin_options();
+
+    // Speichern der ausgewählten Benutzer in den Optionen
+    update_option(
+      "wc_rechnung_approved_admins",
+      $this->get_option("approved_users")
+    );
   }
 
   public function process_payment($order_id)
