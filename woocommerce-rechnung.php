@@ -1,11 +1,10 @@
 <?php
 /*
-Plugin Name: WooCommerce Rechnung Zahlungsgateway
+Plugin Name: WooCommerce Rechnung
 Plugin URI: http://example.com/plugin
 Description: Fügt WooCommerce ein Zahlungsgateway für Rechnungen hinzu.
 Version: 1.0
 Author: Christian Denzau
-Author URI: http://example.com
 */
 
 // Sicherstellen, dass das Skript nicht direkt aufgerufen wird
